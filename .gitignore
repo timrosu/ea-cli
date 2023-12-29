@@ -1,3 +1,4 @@
 responses/
 *.class
+!com/**/*.class
 credentials.json
