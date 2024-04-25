@@ -1,7 +1,3 @@
-# ea-cli
-
-CLI vmesnik za eAsistent napisan v Javi
-
 ## Funkcije
 
 - prijava (in odjava)
