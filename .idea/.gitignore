@@ -1,5 +1,9 @@
+# Default ignored files
+/shelf/
+/workspace.xml
 responses/
 *.class
 !com/**/*.class
 credentials.json
 lib/
+

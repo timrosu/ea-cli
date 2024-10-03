@@ -9,7 +9,6 @@ import tools.*;
 
 public class Api {
   Endpoints end = new Endpoints();
-  public String bearer;
 
   final DateTimeFormatter date = DateTimeFormatter.ofPattern("dd. MM. yyyy");
   final DateTimeFormatter today = DateTimeFormatter.ofPattern("EEEE", new Locale("sl"));
@@ -67,9 +66,9 @@ public class Api {
 
         httpService.setConnection(end.bearerURL, "GET");
         httpService.addHeader("cookie", cookie);
-        String bearer = AuthBear.getBearer(httpService.getBody()).toString();
+        String bearer = AuthBear.getBearer(httpService.getBody());
         httpService.resetConnection();
-        return bearer.toString();
+        return bearer;
       } else {
         throw new IOException("Napačni prijavni podatki. Ponovno se prijavi.");
       }
@@ -178,11 +177,8 @@ public class Api {
     if (jsonArrayLength > 0) {
       for (int i = 0; i < (jsonArrayLength - 1); i++) {
         String path = "timetable/hours/" + i;
-        String from = LocalDateTime.parse(parseJson(output, path + "/from"),
-                DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(time);
-        String to = LocalDateTime.parse(parseJson(output, path + "/to"),
-                DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            .format(time);
+        String from = LocalDateTime.parse(parseJson(output, path + "/from"), DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(time);
+        String to = LocalDateTime.parse(parseJson(output, path + "/to"), DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(time);
         String summary = parseJson(output, path + "/summary");
         //String subject = summary.substring(0, summary.indexOf(' '));
         //String classroom = summary.substring(summary.indexOf(" ", summary.indexOf(" ") + 1));
@@ -237,34 +233,23 @@ public class Api {
     return returnOutput.toString();
   }
 
+  // TODO: load this from file
   private String convertSubject(String input) {
-    switch (input) {
-      case "Laboratorijske vaje - računalništvo":
-        return "LavRAČ";
-      case "Računalništvo":
-        return "RAČ";
-      case "Računalniški sistemi in omrežja":
-        return "RSO";
-      case "Fizika":
-        return "FIZ";
-      case "Matematika":
-        return "MAT";
-      case "Nemščina":
-        return "NEM";
-      case "Angleščina":
-        return "ANG";
-      case "Slovenščina":
-        return "SLO";
-      case "Zgodovina":
-        return "ZGO";
-      case "Filozofija":
-        return "FIL";
-      case "Geografija - izbirni":
-        return "GEOm";
-      case "Športna vzgoja":
-        return "ŠVZ";
-    }
-    return null;
+      return switch (input) {
+          case "Laboratorijske vaje - računalništvo" -> "LavRAČ";
+          case "Računalništvo" -> "RAČ";
+          case "Računalniški sistemi in omrežja" -> "RSO";
+          case "Fizika" -> "FIZ";
+          case "Matematika" -> "MAT";
+          case "Nemščina" -> "NEM";
+          case "Angleščina" -> "ANG";
+          case "Slovenščina" -> "SLO";
+          case "Zgodovina" -> "ZGO";
+          case "Filozofija" -> "FIL";
+          case "Geografija - izbirni" -> "GEOm";
+          case "Športna vzgoja" -> "ŠVZ";
+          default -> null;
+      };
   }
 
   // 5
@@ -286,7 +271,7 @@ public class Api {
         "\nneopravičene ure: \t" + neopraviceneUre +
         "\nneurejeni izostanki: \t" + neurejeniIzostanki +
         "\nčakajoča opravičila: \t" + cakajocaOpravicila + "\n";
-    String returnOutput = izostanki;
+    StringBuilder returnOutput = new StringBuilder(izostanki);
 
     for (int i = 0; i < jsonArrayLength; i++) {
       int hoursJsonArrayLength = JsonParser.getInstance().getArrayLength(output, "items/" + i + "/hours");
@@ -301,21 +286,20 @@ public class Api {
         stanje = "";
       }
 
-      String ure = "";
+      StringBuilder ure = new StringBuilder();
       for (int j = 0; j < hoursJsonArrayLength; j++) {
         String path_h = path + "/hours/" + j;
         String stevilka_ure = parseJson(output, path_h + "/value");
         String predmet = parseJson(output, path_h + "/class_short_name");
         if (predmet.equals("DOG")) {
           predmet = parseJson(output, path_h + "/class_name");
-          ure += predmet + ", ";
+          ure.append(predmet).append(", ");
         } else {
-          ure += stevilka_ure + ".(" + predmet + "), ";
+          ure.append(stevilka_ure).append(".(").append(predmet).append("), ");
         }
       }
-      returnOutput += "\nDatum: " + datum + ",  opravičene ure: " + opravicene_ure + "/" + vse_ure + ",  stanje: "
-          + stanje + "\ture: " + ure.substring(0, ure.length() - 2);
+      returnOutput.append("\nDatum: ").append(datum).append(",  opravičene ure: ").append(opravicene_ure).append("/").append(vse_ure).append(",  stanje: ").append(stanje).append("\ture: ").append(ure, 0, ure.length() - 2);
     }
-    return returnOutput;
+    return returnOutput.toString();
   }
 }

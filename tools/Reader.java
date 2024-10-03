@@ -11,11 +11,14 @@ public class Reader {
         String jsonData = "";
         try {
             Path path = Paths.get(filePath);
+            if (!Files.exists(path)) {
+               Files.createFile(path);
+            }
             byte[] bytes = Files.readAllBytes(path);
             jsonData = new String(bytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return jsonData.toString();
+        return jsonData;
     }
 }
