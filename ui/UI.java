@@ -19,7 +19,7 @@ class UI {
 						3 - današnji urnik
 						4 - redovalnica
 						5 - izostanki
-						6 - prijava 
+						6 - prijava
 						0 - izhod""");
 				System.out.println("==========================");
 				System.out.print("Choose your destiny: ");

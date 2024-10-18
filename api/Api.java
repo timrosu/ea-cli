@@ -162,28 +162,29 @@ public class Api {
     String dayName = LocalDate.now().format(today);
 
     // output override
-    //output = Reader.readFromFile("responses/child.json");
+    // output = Reader.readFromFile("responses/child.json");
 
     StringBuilder returnOutput = new StringBuilder();
     returnOutput.append(String.format("%s", LocalDate.parse(parseJson(output, "timetable/date")).format(date)))
         .append("\n\n");
 
-    returnOutput.append(String.format("%-1s | %-6s | %-6s | %-15s\n",
-        "#", "  OD  ", "  DO  ", "SUMMARY"));
-    returnOutput.append(String.format("%-1s-|-%-6s-|-%-6s-|-%-10s-\n",
-        "-", "------", "------", "----------"));
+    returnOutput.append(String.format("%-1s | %-6s | %-6s | %-15s\n", "#", "  OD  ", "  DO  ", "SUMMARY"));
+    returnOutput.append(String.format("%-1s-|-%-6s-|-%-6s-|-%-10s-\n", "-", "------", "------", "----------"));
     int jsonArrayLength = JsonParser.getInstance().getArrayLength(output, "timetable/hours");
 
     if (jsonArrayLength > 0) {
       for (int i = 0; i < (jsonArrayLength - 1); i++) {
         String path = "timetable/hours/" + i;
-        String from = LocalDateTime.parse(parseJson(output, path + "/from"), DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(time);
-        String to = LocalDateTime.parse(parseJson(output, path + "/to"), DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(time);
+        String from = LocalDateTime.parse(parseJson(output, path + "/from"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            .format(time);
+        String to = LocalDateTime.parse(parseJson(output, path + "/to"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            .format(time);
         String summary = parseJson(output, path + "/summary");
-        //String subject = summary.substring(0, summary.indexOf(' '));
-        //String classroom = summary.substring(summary.indexOf(" ", summary.indexOf(" ") + 1));
+        // String subject = summary.substring(0, summary.indexOf(' '));
+        // String classroom = summary.substring(summary.indexOf(" ", summary.indexOf("
+        // ") + 1));
 
-        returnOutput.append(String.format("%-1s.| %-6s | %-6s | %-15s\n", i+1, from, to, summary));
+        returnOutput.append(String.format("%-1s.| %-6s | %-6s | %-15s\n", i + 1, from, to, summary));
       }
       return returnOutput.toString();
     } else {
@@ -211,11 +212,9 @@ public class Api {
         .append(jsonArrayLength)
         .append("\n\n");
     returnOutput.append(String.format(" %-7s | %-12s | %-12s | %-5s | %s%n",
-        "PREDMET", "   VRSTA   ", "   DATUM   ",
-        "OCENA", "KOMENTAR"));
+        "PREDMET", "   VRSTA   ", "   DATUM   ", "OCENA", "KOMENTAR"));
     returnOutput.append(String.format("-%-7s-|-%-12s-|-%-12s-|-%-5s-|-%s%n",
-        "-------", "------------", "------------",
-        "-----", "------------------"));
+        "-------", "------------", "------------", "-----", "------------------"));
 
     for (int i = 0; i < jsonArrayLength; i++) {
       String path = "items/" + i;
@@ -235,21 +234,21 @@ public class Api {
 
   // TODO: load this from file
   private String convertSubject(String input) {
-      return switch (input) {
-          case "Laboratorijske vaje - računalništvo" -> "LavRAČ";
-          case "Računalništvo" -> "RAČ";
-          case "Računalniški sistemi in omrežja" -> "RSO";
-          case "Fizika" -> "FIZ";
-          case "Matematika" -> "MAT";
-          case "Nemščina" -> "NEM";
-          case "Angleščina" -> "ANG";
-          case "Slovenščina" -> "SLO";
-          case "Zgodovina" -> "ZGO";
-          case "Filozofija" -> "FIL";
-          case "Geografija - izbirni" -> "GEOm";
-          case "Športna vzgoja" -> "ŠVZ";
-          default -> null;
-      };
+    return switch (input) {
+      case "Laboratorijske vaje - računalništvo" -> "LavRAČ";
+      case "Računalništvo" -> "RAČ";
+      case "Računalniški sistemi in omrežja" -> "RSO";
+      case "Fizika" -> "FIZ";
+      case "Matematika" -> "MAT";
+      case "Nemščina" -> "NEM";
+      case "Angleščina" -> "ANG";
+      case "Slovenščina" -> "SLO";
+      case "Zgodovina" -> "ZGO";
+      case "Filozofija" -> "FIL";
+      case "Geografija - izbirni" -> "GEOm";
+      case "Športna vzgoja" -> "ŠVZ";
+      default -> null;
+    };
   }
 
   // 5
@@ -272,6 +271,10 @@ public class Api {
         "\nneurejeni izostanki: \t" + neurejeniIzostanki +
         "\nčakajoča opravičila: \t" + cakajocaOpravicila + "\n";
     StringBuilder returnOutput = new StringBuilder(izostanki);
+
+    returnOutput.append(String.format(" %-12s | %-6s | %-10s | %s%n", "    DATUM   ", "STANJE", "OPRAVICENE", "URE"));
+    returnOutput.append(String.format("-%-12s-|-%-6s-|-%-10s-|-%s%n",
+        "------------", "------", "----------", "-------------------------"));
 
     for (int i = 0; i < jsonArrayLength; i++) {
       int hoursJsonArrayLength = JsonParser.getInstance().getArrayLength(output, "items/" + i + "/hours");
@@ -298,7 +301,8 @@ public class Api {
           ure.append(stevilka_ure).append(".(").append(predmet).append("), ");
         }
       }
-      returnOutput.append("\nDatum: ").append(datum).append(",  opravičene ure: ").append(opravicene_ure).append("/").append(vse_ure).append(",  stanje: ").append(stanje).append("\ture: ").append(ure, 0, ure.length() - 2);
+      returnOutput.append(
+          String.format(" %-12s |   %-4s |    %-7s | %s%n", datum, stanje, opravicene_ure + "/" + vse_ure, ure));
     }
     return returnOutput.toString();
   }
